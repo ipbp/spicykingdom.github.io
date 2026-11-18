@@ -25,6 +25,12 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .touch-btn { min-height: 44px; }
     .key-tile:active { transform: scale(0.93); background: #fee2e2; }
+    .glass-dock {
+      background: rgba(255, 255, 255, 0.90);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+    }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25%, 75% { transform: translateX(-7px); }
@@ -37,7 +43,6 @@
     }
     .shimmer-bar { animation: shimmer 1.4s infinite linear; }
 
-    /* Authentic 80mm Thermal Receipt & Z-Report Print Formatting */
     @media print {
       body * { visibility: hidden !important; }
       #thermalPrintArea, #thermalPrintArea * { visibility: visible !important; }
@@ -58,11 +63,9 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col pb-20 lg:pb-0">
+<body class="min-h-screen flex flex-col pb-24 lg:pb-0">
 
-  <!-- ============================================================
-       ANIMATED BRAND SPLASH SCREEN (Matches Operations App)
-       ============================================================ -->
+  <!-- ANIMATED BRAND SPLASH SCREEN -->
   <div id="posSplashScreen" class="fixed inset-0 z-[100] bg-gradient-to-br from-amber-50 via-orange-50 to-rose-100 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-500">
     <div class="relative flex items-center justify-center mb-5">
       <div class="absolute w-28 h-28 rounded-full bg-orange-500/20 animate-ping"></div>
@@ -116,87 +119,116 @@
         <button type="button" onclick="pressPosPin('9')" class="key-tile h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 text-lg font-extrabold">9</button>
         <button type="button" onclick="clearPosPin()" class="key-tile h-14 rounded-2xl bg-rose-50 text-rose-600 text-xs font-extrabold">CLR</button>
         <button type="button" onclick="pressPosPin('0')" class="key-tile h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 text-lg font-extrabold">0</button>
-        <button type="button" onclick="submitPosLogin()" class="h-14 rounded-2xl bg-gradient-to-r from-orange-600 to-rose-600 text-white text-xs font-extrabold shadow">GO</button>
+        <button type="button" onclick="submitPosLogin()" class="h-14 rounded-2xl bg-gradient-to-r from-orange-600 to-rose-600 text-white text-xs font-extrabold shadow flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </button>
       </div>
     </div>
   </div>
 
   <!-- ============================================================
-       SCREEN 2: MAIN POS WORKSPACE (Native Mobile App + Windows Desktop)
+       SCREEN 2: MAIN POS WORKSPACE (Clean Uncongested Mobile + Desktop Shell)
        ============================================================ -->
   <div id="posAppShell" class="hidden flex-1 flex flex-col">
 
-    <!-- TOP HEADER -->
-    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 shadow-xs">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-rose-600 to-orange-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center shadow">
+    <!-- UNCONGESTED STICKY HEADER -->
+    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-3 sm:px-5 py-2 flex items-center justify-between gap-2 shadow-xs">
+      <!-- Left: Compact SK Emblem + Single-Line Title -->
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 to-orange-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0 shadow-xs">
           SK
         </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-xs sm:text-base font-extrabold tracking-tight text-slate-900" id="headerRestoName">SPICY KINGDOM POS</h1>
-            <span id="sessionStatusPill" onclick="openSessionRegisterModal()" class="cursor-pointer text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Session Open</span>
-          </div>
-          <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500" id="posOperatorBadge">Operator: Owner</p>
+        <div class="min-w-0">
+          <h1 class="text-xs sm:text-sm font-extrabold tracking-tight text-slate-900 truncate" id="headerRestoName">SPICY KINGDOM</h1>
+          <p class="text-[10px] font-semibold text-slate-500 truncate" id="posOperatorBadge">Owner</p>
         </div>
       </div>
 
-      <!-- Desktop Navigation Tabs (Hidden on Mobile; Mobile uses Fixed Bottom Native App Bar) -->
+      <!-- Desktop Navigation Tabs -->
       <nav class="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-extrabold">
-        <button onclick="switchPosView('FLOOR')" id="navFloor" class="px-3 py-2 rounded-lg bg-white text-rose-600 shadow-xs transition">Floor & Tables</button>
-        <button onclick="switchPosView('BILLING')" id="navBilling" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">POS Billing</button>
+        <button onclick="switchPosView('FLOOR')" id="navFloor" class="px-3 py-2 rounded-lg bg-white text-rose-600 shadow-xs transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>Floor</span>
+        </button>
+        <button onclick="switchPosView('BILLING')" id="navBilling" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span>POS Billing</span>
+        </button>
         <button onclick="switchPosView('KDS')" id="navKds" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
-          <span>Kitchen KDS</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>KDS</span>
           <span id="kdsBadgeCount" class="px-1.5 py-0.5 text-[10px] rounded-full bg-amber-500 text-white">0</span>
         </button>
-        <button onclick="switchPosView('CRM')" id="navCrm" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">Customers CRM</button>
-        <button onclick="switchPosView('MENU_MGR')" id="navMenuMgr" class="hidden px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">Menu Manager</button>
-        <button onclick="switchPosView('REPORTS')" id="navReports" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">Dashboard & Reports</button>
+        <button onclick="switchPosView('CRM')" id="navCrm" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Guests</span>
+        </button>
+        <button onclick="switchPosView('MENU_MGR')" id="navMenuMgr" class="hidden px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span>Menu</span>
+        </button>
+        <button onclick="switchPosView('REPORTS')" id="navReports" class="px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Reports</span>
+        </button>
       </nav>
 
-      <!-- Right Controls: Register Open/Close, Settings, Sync, Lock -->
-      <div class="flex items-center gap-1.5">
-        <button onclick="openSessionRegisterModal()" class="px-2.5 sm:px-3 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-[11px] sm:text-xs font-extrabold">
-          Register
+      <!-- Right: Compact Icon Controls (Zero Overflow on Mobile) -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="openSessionRegisterModal()" id="sessionStatusPill" class="whitespace-nowrap px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs font-extrabold flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          <span id="sessionPillText">Reg #1</span>
         </button>
-        <button id="posSettingsBtn" onclick="openSettingsModal()" class="hidden p-2 sm:p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Settings">
+        <button id="posSettingsBtn" onclick="openSettingsModal()" class="hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Settings">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </button>
-        <button onclick="syncFromCloud(true)" class="p-2 sm:p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-cyan-700 transition" title="Sync">
+        <button onclick="syncFromCloud(true)" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-cyan-700 transition" title="Sync">
           <svg id="posSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
-        <button onclick="logoutPos()" class="px-2.5 py-2 rounded-xl bg-rose-50 text-rose-600 text-xs font-extrabold">Lock</button>
+        <button onclick="logoutPos()" class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-extrabold flex items-center gap-1" title="Logout">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span class="hidden sm:inline">Logout</span>
+        </button>
       </div>
     </header>
 
     <!-- ============================================================
-         VIEW 1: LIVE FLOOR & TABLE GRID
+         VIEW 1: LIVE FLOOR & TABLE GRID (Separated KOT / Proforma / Bill Print Counters)
          ============================================================ -->
     <main id="view-FLOOR" class="flex-1 p-3 sm:p-4 max-w-7xl w-full mx-auto space-y-3.5">
       <div class="bg-white rounded-2xl p-3 border border-slate-200 flex flex-wrap items-center justify-between gap-2.5 shadow-xs">
         <div class="grid grid-cols-4 sm:flex gap-1.5 w-full sm:w-auto">
-          <button onclick="startChannelOrder('Takeaway')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-slate-900 text-white text-[11px] sm:text-xs font-extrabold active:scale-95 transition">+ Takeaway</button>
-          <button onclick="startChannelOrder('Delivery')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-[11px] sm:text-xs font-extrabold active:scale-95 transition">+ Delivery</button>
+          <button onclick="startChannelOrder('Takeaway')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-slate-900 text-white text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <span>Takeaway</span>
+          </button>
+          <button onclick="startChannelOrder('Delivery')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-[11px] sm:text-xs font-extrabold flex items-center justify-center gap-1 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+            <span>Delivery</span>
+          </button>
           <button onclick="startChannelOrder('Swiggy')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-orange-500 text-white text-[11px] sm:text-xs font-extrabold active:scale-95 transition">+ Swiggy</button>
           <button onclick="startChannelOrder('Zomato')" class="touch-btn px-2.5 sm:px-3.5 py-2 rounded-xl bg-rose-600 text-white text-[11px] sm:text-xs font-extrabold active:scale-95 transition">+ Zomato</button>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 text-xs font-bold w-full sm:w-auto">
-          <div class="flex gap-1.5">
-            <span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-300" id="statVacant">Vacant: 0</span>
-            <span class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-300" id="statRunning">Running: 0</span>
-            <span class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-300" id="statPrinted">Printed: 0</span>
+        <!-- Separated Live Counters: Vacant, Running, KOT Prints, Proforma Prints, Tax Bills -->
+        <div class="flex flex-wrap items-center justify-between sm:justify-end gap-1.5 text-[11px] font-bold w-full sm:w-auto">
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200" id="statVacant">Vacant: 0</span>
+            <span class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200" id="statRunning">Running: 0</span>
+            <span class="px-2 py-1 rounded-lg bg-orange-50 text-orange-700 border border-orange-200" id="statKotPrints">KOTs: 0</span>
+            <span class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200" id="statProformaPrints">Proforma: 0</span>
+            <span class="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200" id="statFinalBills">Bills: 0</span>
           </div>
-          <button onclick="openAddTableModal()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold">+ Add / Pax</button>
+          <button onclick="openAddTableModal()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold">+ Table / Pax</button>
         </div>
       </div>
 
-      <!-- Dynamic Section Tabs + Add/Delete Section Controls -->
+      <!-- Dynamic Section Tabs -->
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-extrabold" id="floorSectionTabs"></div>
         <div id="sectionManageBtns" class="hidden flex items-center gap-1.5 text-xs font-extrabold">
-          <button onclick="openThemedPrompt('Add New Floor Section', 'Enter section name (e.g., Garden Lounge)', 'Main Hall', (val)=>addFloorSection(val))" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">+ Add Section</button>
-          <button onclick="deleteCurrentSection()" id="delSectionBtn" class="hidden px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">Delete Section</button>
+          <button onclick="openThemedPrompt('Add New Floor Section', 'Enter section name (e.g., Garden Lounge)', 'Main Hall', (val)=>addFloorSection(val))" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">+ Section</button>
+          <button onclick="deleteCurrentSection()" id="delSectionBtn" class="hidden px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">Delete</button>
         </div>
       </div>
 
@@ -211,39 +243,39 @@
     </main>
 
     <!-- ============================================================
-         VIEW 2: POS BILLING (Native Mobile App Tab Switcher + Windows Split-Screen)
+         VIEW 2: POS BILLING (Mobile Clean List View + Desktop Split-Screen)
          ============================================================ -->
     <main id="view-BILLING" class="hidden flex-1 max-w-7xl w-full mx-auto p-2 sm:p-3 flex flex-col">
-      <!-- Native Mobile Segmented App Control -->
       <div class="lg:hidden grid grid-cols-2 gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200 mb-2 text-xs font-extrabold shadow-xs">
-        <button type="button" onclick="setMobileBillingPane('MENU')" id="mobPaneMenuBtn" class="py-2.5 rounded-xl bg-rose-600 text-white transition">1. Select Menu</button>
-        <button type="button" onclick="setMobileBillingPane('CART')" id="mobPaneCartBtn" class="py-2.5 rounded-xl bg-slate-100 text-slate-700 transition">2. Order & Bill (0)</button>
+        <button type="button" onclick="setMobileBillingPane('MENU')" id="mobPaneMenuBtn" class="py-2 rounded-xl bg-rose-600 text-white transition">1. Menu List</button>
+        <button type="button" onclick="setMobileBillingPane('CART')" id="mobPaneCartBtn" class="py-2 rounded-xl bg-slate-100 text-slate-700 transition">2. Cart & Bill (0)</button>
       </div>
 
       <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3">
-        <!-- LEFT PANEL: MENU CATALOG -->
-        <div id="billingMenuPane" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-2.5 sm:p-3 flex flex-col h-[calc(100vh-195px)] lg:h-[calc(100vh-84px)]">
+        <!-- LEFT PANEL: MENU CATALOG (List View on Mobile, Grid on Desktop, Bold FSSAI Diet Badges) -->
+        <div id="billingMenuPane" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-2.5 sm:p-3 flex flex-col h-[calc(100vh-205px)] lg:h-[calc(100vh-84px)]">
           <div class="flex flex-wrap items-center gap-2 pb-2 border-b border-slate-100">
-            <div class="relative flex-1 min-w-[150px]">
+            <div class="relative flex-1 min-w-[140px]">
               <input type="text" id="posMenuSearch" oninput="renderPosMenu()" placeholder="Search dish or #code (F1)..." class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-100 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500" />
               <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
             <div class="flex gap-1 text-[11px] font-extrabold">
               <button onclick="setDietFilter('ALL')" class="diet-btn px-2.5 py-2 rounded-xl bg-slate-900 text-white" data-diet="ALL">All</button>
-              <button onclick="setDietFilter('VEG')" class="diet-btn px-2.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" data-diet="VEG">● Veg</button>
-              <button onclick="setDietFilter('NON-VEG')" class="diet-btn px-2.5 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200" data-diet="NON-VEG">▲ Non-Veg</button>
-              <button onclick="setDietFilter('EGG')" class="diet-btn px-2.5 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200" data-diet="EGG">● Egg</button>
+              <button onclick="setDietFilter('VEG')" class="diet-btn px-2.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" data-diet="VEG">Veg</button>
+              <button onclick="setDietFilter('NON-VEG')" class="diet-btn px-2.5 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200" data-diet="NON-VEG">Non-Veg</button>
+              <button onclick="setDietFilter('EGG')" class="diet-btn px-2.5 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200" data-diet="EGG">Egg</button>
             </div>
           </div>
 
           <div class="flex-1 flex gap-2 pt-2 overflow-hidden">
             <div id="posCategoryRail" class="w-24 sm:w-32 shrink-0 overflow-y-auto no-scrollbar space-y-1.5 pr-1 border-r border-slate-100"></div>
-            <div id="posMenuGrid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2 content-start pr-1"></div>
+            <!-- List on Mobile (flex-col), 3-col Grid on Desktop (lg:grid lg:grid-cols-3) -->
+            <div id="posMenuGrid" class="flex-1 overflow-y-auto flex flex-col lg:grid lg:grid-cols-3 gap-2 content-start pr-1"></div>
           </div>
         </div>
 
-        <!-- RIGHT PANEL: LIVE ORDER CART + CUSTOMER CRM + CONSOLIDATED KOT -->
-        <div id="billingCartPane" class="hidden lg:flex lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-2.5 sm:p-3 flex-col h-[calc(100vh-195px)] lg:h-[calc(100vh-84px)]">
+        <!-- RIGHT PANEL: LIVE ORDER CART (Locked Logged-in Operator Identity) -->
+        <div id="billingCartPane" class="hidden lg:flex lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-2.5 sm:p-3 flex-col h-[calc(100vh-205px)] lg:h-[calc(100vh-84px)]">
           <div class="pb-2 border-b border-slate-100 space-y-1.5">
             <div class="flex items-center justify-between flex-wrap gap-1">
               <div class="flex items-center gap-1.5">
@@ -264,11 +296,11 @@
                   <option value="Swiggy">Swiggy</option>
                   <option value="Zomato">Zomato</option>
                 </select>
-                <button onclick="requestClearCurrentOrder()" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white">✕ Cancel</button>
+                <button onclick="requestClearCurrentOrder()" class="px-2.5 py-1 rounded-lg bg-rose-600 text-white">Cancel</button>
               </div>
             </div>
 
-            <!-- Guest Mobile (Auto-Detects Repeat Customer), Name, Local/Non-Local Tag & Live Employee Dropdown -->
+            <!-- Customer Mobile, Name & Local/Non-Local Tag -->
             <div class="grid grid-cols-12 gap-1.5">
               <input type="tel" id="orderCustPhone" oninput="onCustomerPhoneInput(this.value)" placeholder="Mobile (Auto-CRM)" class="col-span-4 px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold" />
               <input type="text" id="orderCustName" oninput="updateOrderMeta()" placeholder="Guest Name" class="col-span-4 px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold" />
@@ -277,12 +309,13 @@
                 <option value="Non-Local">Non-Local</option>
               </select>
             </div>
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 flex-1">
-                <span class="text-[10px] font-bold text-slate-500">Staff:</span>
-                <select id="orderWaiterSelect" onchange="updateOrderMeta()" class="flex-1 px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold"></select>
-              </div>
-              <span id="repeatCustomerBadge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">★ Repeat Guest</span>
+            <!-- Locked Operator Display (Cannot spoof another cashier's name) -->
+            <div class="flex items-center justify-between text-[11px] px-1">
+              <span class="font-bold text-slate-500 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Billed By: <strong class="text-slate-800" id="lockedBillerLabel">-</strong>
+              </span>
+              <span id="repeatCustomerBadge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">Repeat Guest</span>
             </div>
           </div>
 
@@ -320,10 +353,10 @@
                 Send KOT (F2)
               </button>
               <button onclick="sendConsolidatedKot(true)" class="touch-btn py-2 px-1 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-extrabold shadow-xs active:scale-95 transition">
-                KOT & Print 80mm
+                KOT & Print
               </button>
               <button onclick="printBillAction()" class="touch-btn py-2 px-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold shadow-xs active:scale-95 transition">
-                Print Bill (F3)
+                Proforma (F3)
               </button>
             </div>
             <button onclick="openSettleModal()" class="w-full touch-btn py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow active:scale-95 transition">
@@ -349,20 +382,20 @@
     </main>
 
     <!-- ============================================================
-         VIEW 4: CUSTOMER MARKETING CRM (Local vs Non-Local & Repeat Customers)
+         VIEW 4: CUSTOMER MARKETING CRM
          ============================================================ -->
     <main id="view-CRM" class="hidden flex-1 max-w-6xl w-full mx-auto p-3 sm:p-4 space-y-4">
       <div class="grid grid-cols-3 gap-2.5">
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200">
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 border-t-4 border-t-slate-800">
           <p class="text-[11px] font-bold text-slate-500">Total Customers</p>
           <p class="text-xl font-extrabold text-slate-900 tabular-nums mt-0.5" id="crmTotalCount">0</p>
         </div>
-        <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
-          <p class="text-[11px] font-bold text-emerald-800">Local Customers (Target)</p>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 border-t-4 border-t-emerald-500">
+          <p class="text-[11px] font-bold text-slate-500">Local Customers</p>
           <p class="text-xl font-extrabold text-emerald-700 tabular-nums mt-0.5" id="crmLocalCount">0</p>
         </div>
-        <div class="bg-purple-50 p-3.5 rounded-2xl border border-purple-200">
-          <p class="text-[11px] font-bold text-purple-800">Repeat Visitors (2+)</p>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 border-t-4 border-t-purple-500">
+          <p class="text-[11px] font-bold text-slate-500">Repeat Visitors (2+)</p>
           <p class="text-xl font-extrabold text-purple-700 tabular-nums mt-0.5" id="crmRepeatCount">0</p>
         </div>
       </div>
@@ -371,8 +404,8 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex gap-1.5 text-xs font-extrabold">
             <button onclick="setCrmFilter('ALL')" class="crm-tab px-3 py-1.5 rounded-xl bg-slate-900 text-white" data-f="ALL">All Guests</button>
-            <button onclick="setCrmFilter('LOCAL')" class="crm-tab px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700" data-f="LOCAL">Local Only</button>
-            <button onclick="setCrmFilter('REPEAT')" class="crm-tab px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700" data-f="REPEAT">Repeat Visitors</button>
+            <button onclick="setCrmFilter('LOCAL')" class="crm-tab px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700" data-f="LOCAL">Local Only</button>
+            <button onclick="setCrmFilter('REPEAT')" class="crm-tab px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700" data-f="REPEAT">Repeat Visitors</button>
           </div>
           <button onclick="exportCustomersExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">Export Marketing List (.xlsx)</button>
         </div>
@@ -381,7 +414,7 @@
     </main>
 
     <!-- ============================================================
-         VIEW 5: MENU MANAGER (Category + Veg/Non-Veg/Egg Filters + CRUD)
+         VIEW 5: MENU MANAGER (Now Accessible on Both Mobile & Desktop)
          ============================================================ -->
     <main id="view-MENU_MGR" class="hidden flex-1 max-w-6xl w-full mx-auto p-3 sm:p-4 space-y-4">
       <div class="bg-white rounded-2xl p-4 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
@@ -390,95 +423,90 @@
           <p class="text-xs text-slate-500">Add, edit, or delete dishes & prices — auto-syncs to Google Sheets</p>
         </div>
         <div class="flex gap-2">
-          <button onclick="togglePosModal('importModal')" class="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-extrabold">Import Odoo Excel/CSV</button>
-          <button onclick="openMenuEditorModal(-1)" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-extrabold shadow">+ Add New Dish</button>
+          <button onclick="togglePosModal('importModal')" class="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-extrabold">Import Excel/CSV</button>
+          <button onclick="openMenuEditorModal(-1)" class="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-extrabold shadow">+ Add Dish</button>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
         <div class="flex flex-wrap items-center gap-2">
-          <input type="text" id="mgrMenuSearch" oninput="renderMenuManagerList()" placeholder="Search dish name or code..." class="flex-1 min-w-[200px] p-2.5 rounded-xl bg-slate-100 text-sm font-semibold" />
+          <input type="text" id="mgrMenuSearch" oninput="renderMenuManagerList()" placeholder="Search dish name or code..." class="flex-1 min-w-[180px] p-2.5 rounded-xl bg-slate-100 text-sm font-semibold" />
           <div class="flex gap-1 text-xs font-extrabold">
             <button onclick="setMgrDietFilter('ALL')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-slate-900 text-white" data-d="ALL">All</button>
-            <button onclick="setMgrDietFilter('VEG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" data-d="VEG">● Veg</button>
-            <button onclick="setMgrDietFilter('NON-VEG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200" data-d="NON-VEG">▲ Non-Veg</button>
-            <button onclick="setMgrDietFilter('EGG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200" data-d="EGG">● Egg</button>
+            <button onclick="setMgrDietFilter('VEG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" data-d="VEG">Veg</button>
+            <button onclick="setMgrDietFilter('NON-VEG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200" data-d="NON-VEG">Non-Veg</button>
+            <button onclick="setMgrDietFilter('EGG')" class="mgr-diet-btn px-3 py-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200" data-d="EGG">Egg</button>
           </div>
         </div>
         <div id="mgrCategoryPills" class="flex gap-1.5 overflow-x-auto no-scrollbar text-xs font-extrabold pb-1"></div>
-        <div id="menuManagerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[60vh] overflow-y-auto"></div>
+        <div id="menuManagerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[58vh] overflow-y-auto"></div>
       </div>
     </main>
 
     <!-- ============================================================
-         VIEW 6: EXECUTIVE COLORFUL ANALYTICS & REPORTS DASHBOARD
+         VIEW 6: CLEAN EXECUTIVE ANALYTICS & REPORTS DASHBOARD
          ============================================================ -->
     <main id="view-REPORTS" class="hidden flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 space-y-4">
-      <!-- Top Action Bar -->
       <div class="bg-white rounded-2xl p-3.5 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openSessionRegisterModal()" class="px-3.5 py-2 rounded-xl bg-amber-500 text-white text-xs font-extrabold shadow-xs">Session Register / Z-Report</button>
-          <button onclick="openManualCashModal('INFLOW')" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold shadow-xs">+ Catering / Extra Sale</button>
-          <button onclick="openManualCashModal('EXPENSE')" class="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-extrabold shadow-xs">- Pooja / Petty Expense</button>
+          <button onclick="openSessionRegisterModal()" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-extrabold">Session Register / Z-Report</button>
+          <button onclick="openManualCashModal('INFLOW')" class="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-extrabold">+ Catering / Extra Sale</button>
+          <button onclick="openManualCashModal('EXPENSE')" class="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-extrabold">- Pooja / Petty Expense</button>
         </div>
         <button onclick="togglePosModal('reportsExportModal')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-extrabold shadow">
           Sales, Daily X-Report & ITR (Excel / PDF)
         </button>
       </div>
 
-      <!-- Colorful Gradient KPI Cards -->
+      <!-- Clean White KPI Cards with Subtle Top Accent Borders -->
       <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
-          <p class="text-[11px] font-bold opacity-85">Today's POS Sales</p>
-          <p class="text-2xl font-extrabold tabular-nums mt-1" id="kpiTodaySales">₹0</p>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 border-t-4 border-t-emerald-500">
+          <p class="text-[11px] font-bold text-slate-500">Today's POS Sales</p>
+          <p class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1" id="kpiTodaySales">₹0</p>
         </div>
-        <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md">
-          <p class="text-[11px] font-bold opacity-85">Settled Orders</p>
-          <p class="text-2xl font-extrabold tabular-nums mt-1" id="kpiTodayOrders">0</p>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 border-t-4 border-t-blue-500">
+          <p class="text-[11px] font-bold text-slate-500">Settled Orders</p>
+          <p class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1" id="kpiTodayOrders">0</p>
         </div>
-        <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md">
-          <p class="text-[11px] font-bold opacity-85">Cumulative Staff Tips</p>
-          <p class="text-2xl font-extrabold tabular-nums mt-1" id="kpiTotalTips">₹0</p>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 border-t-4 border-t-amber-500">
+          <p class="text-[11px] font-bold text-slate-500">Cumulative Staff Tips</p>
+          <p class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1" id="kpiTotalTips">₹0</p>
         </div>
-        <div class="p-4 rounded-2xl bg-gradient-to-br from-cyan-600 to-sky-700 text-white shadow-md">
-          <p class="text-[11px] font-bold opacity-85">Ops Cash Box (Live)</p>
-          <p class="text-2xl font-extrabold tabular-nums mt-1" id="kpiOpsCashBox">₹0</p>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 border-t-4 border-t-teal-500">
+          <p class="text-[11px] font-bold text-slate-500">Ops Cash Box (Live)</p>
+          <p class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1" id="kpiOpsCashBox">₹0</p>
         </div>
-        <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md col-span-2 lg:col-span-1">
-          <p class="text-[11px] font-bold opacity-85">Ops Store Stock Worth</p>
-          <p class="text-2xl font-extrabold tabular-nums mt-1" id="kpiOpsStockWorth">₹0</p>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 border-t-4 border-t-indigo-500 col-span-2 lg:col-span-1">
+          <p class="text-[11px] font-bold text-slate-500">Ops Store Stock Worth</p>
+          <p class="text-2xl font-extrabold text-slate-900 tabular-nums mt-1" id="kpiOpsStockWorth">₹0</p>
         </div>
       </div>
 
-      <!-- 4 Distinct Analytics Cards with Colorful Progress Bars -->
+      <!-- 4 Clean Analytics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <!-- Card 1: Channel & Payment Progress Bars -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
           <h3 class="text-sm font-extrabold text-slate-900">Channel Revenue Mix</h3>
           <div id="channelBreakdownList" class="space-y-2.5 text-xs"></div>
           <div class="pt-2.5 border-t border-slate-100 space-y-1.5 text-xs" id="paymentModeBreakdown"></div>
         </div>
 
-        <!-- Card 2: Top Revenue Generating Dishes -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
           <h3 class="text-sm font-extrabold text-slate-900">Top Revenue Dishes</h3>
           <div id="topDishesList" class="space-y-2.5 text-xs"></div>
         </div>
 
-        <!-- Card 3: Dedicated Ops Kitchen Issued Stock Card -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-extrabold text-slate-900">Ops Issued Stock</h3>
-            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700">Live ERP</span>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Operations DB</span>
           </div>
           <div id="opsConsumptionList" class="space-y-2.5 text-xs"></div>
         </div>
 
-        <!-- Card 4: Worker Tips Ledger & Equal Split -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-extrabold text-slate-900">Worker Tips Ledger</h3>
-            <button onclick="openTipsSplitModal()" class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">Split Equally</button>
+            <button onclick="openTipsSplitModal()" class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800">Split Equally</button>
           </div>
           <div id="tipsLedgerList" class="space-y-2 text-xs"></div>
         </div>
@@ -495,36 +523,42 @@
     </main>
 
     <!-- ============================================================
-         NATIVE MOBILE APP BOTTOM NAVIGATION BAR (< 1024px)
+         FLOATING FROSTED MOBILE BOTTOM NAVIGATION DOCK (Matches Operations App)
          ============================================================ -->
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1.5 grid grid-cols-5 text-[10px] font-extrabold shadow-2xl">
-      <button onclick="switchPosView('FLOOR')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-rose-600 bg-rose-50" data-v="FLOOR">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        <span>Floor</span>
-      </button>
-      <button onclick="switchPosView('BILLING')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-slate-500" data-v="BILLING">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-        <span>POS Bill</span>
-      </button>
-      <button onclick="switchPosView('KDS')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-slate-500" data-v="KDS">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>KDS</span>
-      </button>
-      <button onclick="switchPosView('CRM')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-slate-500" data-v="CRM">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <span>Guests</span>
-      </button>
-      <button onclick="switchPosView('REPORTS')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-slate-500" data-v="REPORTS">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Reports</span>
-      </button>
+    <nav class="lg:hidden fixed bottom-2.5 left-2.5 right-2.5 glass-dock rounded-2xl z-40 px-1.5 py-1.5 shadow-xl">
+      <div class="grid grid-cols-6 text-[10px] font-bold">
+        <button onclick="switchPosView('FLOOR')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="FLOOR">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>Floor</span>
+        </button>
+        <button onclick="switchPosView('BILLING')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="BILLING">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span>POS</span>
+        </button>
+        <button onclick="switchPosView('KDS')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="KDS">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>KDS</span>
+        </button>
+        <button onclick="switchPosView('CRM')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="CRM">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Guests</span>
+        </button>
+        <button onclick="switchPosView('MENU_MGR')" id="mobNavMenuMgr" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="MENU_MGR">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span>Menu</span>
+        </button>
+        <button onclick="switchPosView('REPORTS')" class="mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all" data-v="REPORTS">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Reports</span>
+        </button>
+      </div>
     </nav>
   </div>
   <!-- ============================================================
        MODALS: SESSION REGISTER (Z-REPORT & X-REPORT), RECEIPT, SETTLE, CRM, MENU & SETTINGS
        ============================================================ -->
 
-  <!-- 1. SESSION OPENING / CLOSING REGISTER MODAL (Odoo-Style Cash Drawer Reconciliation) -->
+  <!-- 1. SESSION OPENING / CLOSING REGISTER MODAL -->
   <div id="sessionRegisterModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-[75] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
@@ -535,14 +569,15 @@
         <button onclick="togglePosModal('sessionRegisterModal')" class="text-2xl text-slate-400 leading-none">&times;</button>
       </div>
 
-      <!-- Open New Session View -->
+      <!-- Open New Session View (Auto-Synced with Operations Cash Box) -->
       <div id="regOpenBox" class="hidden space-y-3">
-        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold">
-          No POS session is currently open. Enter your opening cash drawer float to begin taking orders.
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-semibold flex items-center justify-between">
+          <span>Operations Cash Box Live Balance:</span>
+          <strong class="text-emerald-700 text-sm tabular-nums" id="regLiveOpsCashHint">₹0.00</strong>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Opening Cash Drawer Float (₹)</label>
-          <input type="number" step="0.01" id="regOpeningCashInput" value="5000" class="w-full p-3 rounded-xl border border-slate-300 font-extrabold text-base tabular-nums" />
+          <label class="block text-xs font-bold text-slate-600 mb-1">Opening Cash Drawer Float (Auto-Synced, Editable ₹)</label>
+          <input type="number" step="0.01" id="regOpeningCashInput" value="0" class="w-full p-3 rounded-xl border border-slate-300 font-extrabold text-base tabular-nums" />
         </div>
         <button onclick="openNewPosSession()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow">
           Open Session & Start Register
@@ -593,7 +628,7 @@
     </div>
   </div>
 
-  <!-- 2. THEMED IN-APP DIALOG (Replaces all Chrome alert/prompt/confirm popups) -->
+  <!-- 2. THEMED IN-APP DIALOG -->
   <div id="themedDialogModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-[90] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl border border-slate-200">
       <div class="flex justify-between items-center">
@@ -638,7 +673,7 @@
     </div>
   </div>
 
-  <!-- 4. MULTI-MODE PAYMENT SETTLEMENT MODAL -->
+  <!-- 4. MULTI-MODE PAYMENT SETTLEMENT MODAL (With Quick Cash Denomination Chips) -->
   <div id="settleModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[70] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
@@ -659,7 +694,13 @@
       </div>
 
       <div id="settleCashBox" class="space-y-2">
-        <label class="block text-xs font-bold text-slate-600">Cash Tendered by Customer (₹)</label>
+        <div class="flex gap-1.5 text-[11px] font-extrabold">
+          <button type="button" onclick="setExactCashTendered()" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">Exact</button>
+          <button type="button" onclick="addCashDenom(100)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">+₹100</button>
+          <button type="button" onclick="addCashDenom(200)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">+₹200</button>
+          <button type="button" onclick="addCashDenom(500)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">+₹500</button>
+          <button type="button" onclick="addCashDenom(2000)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">+₹2000</button>
+        </div>
         <input type="number" id="cashTenderedInput" oninput="calcChangeReturn()" placeholder="Enter cash received..." class="w-full p-2.5 rounded-xl border border-slate-300 font-extrabold text-sm" />
         <div class="flex justify-between text-xs font-extrabold px-1">
           <span class="text-slate-500">Balance Change to Return:</span>
@@ -1138,7 +1179,7 @@
       return list;
     }
 
-    let posState = JSON.parse(localStorage.getItem("sk_pos_state_v4") || "null") || {
+    let posState = JSON.parse(localStorage.getItem("sk_pos_state_v5") || "null") || {
       settings: {
         restoName: "SPICY KINGDOM",
         restoAddress: "Madanapalle, AP, 517325, India",
@@ -1165,6 +1206,8 @@
       customers: [],
       activeSession: null,
       sessionCounter: 1,
+      kotPrintCount: 0,
+      proformaPrintCount: 0,
       orderCounter: 1001,
       invoiceCounter: 1001,
       kotCounter: 101
@@ -1200,7 +1243,7 @@
     }
 
     function saveState() {
-      localStorage.setItem("sk_pos_state_v4", JSON.stringify(posState));
+      localStorage.setItem("sk_pos_state_v5", JSON.stringify(posState));
     }
 
     function showPosToast(msg, isErr = false) {
@@ -1211,12 +1254,49 @@
       setTimeout(() => t.classList.add("hidden"), 3000);
     }
 
-    // Themed In-App Dialog (Replaces browser alert/prompt/confirm)
+    // Large, High-Visibility FSSAI Dietary Badge SVG
+    function getDietBadgeHtml(diet) {
+      if (diet === "VEG") {
+        return `<span class="w-5 h-5 border-2 border-emerald-600 rounded-xs flex items-center justify-center shrink-0 bg-white" title="Pure Veg">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+        </span>`;
+      }
+      if (diet === "EGG") {
+        return `<span class="w-5 h-5 border-2 border-amber-500 rounded-xs flex items-center justify-center shrink-0 bg-white" title="Contains Egg">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+        </span>`;
+      }
+      return `<span class="w-5 h-5 border-2 border-rose-600 rounded-xs flex items-center justify-center shrink-0 bg-white" title="Non-Veg">
+        <svg class="w-3 h-3 text-rose-600 fill-current" viewBox="0 0 12 12"><polygon points="6,1 11,11 1,11"/></svg>
+      </span>`;
+    }
+
+    // Global Function Key Shortcuts: F1 Search | F2 Send KOT | F3/F6 KOT & Print 80mm | F4 Proforma Bill | F8/F9 Settle
+    window.addEventListener("keydown", (e) => {
+      if (!currentPosUser) return;
+      if (e.key === "F1") {
+        e.preventDefault();
+        switchPosView("BILLING");
+        setTimeout(() => document.getElementById("posMenuSearch").focus(), 50);
+      } else if (e.key === "F2") {
+        e.preventDefault();
+        sendConsolidatedKot(false);
+      } else if (e.key === "F3" || e.key === "F6") {
+        e.preventDefault();
+        sendConsolidatedKot(true);
+      } else if (e.key === "F4") {
+        e.preventDefault();
+        printBillAction();
+      } else if (e.key === "F8" || e.key === "F9") {
+        e.preventDefault();
+        openSettleModal();
+      }
+    }, true);
+
     function openThemedConfirm(title, message, onConfirm) {
       document.getElementById("tdTitle").textContent = title;
       document.getElementById("tdMessage").textContent = message;
-      const inp = document.getElementById("tdInput");
-      inp.classList.add("hidden");
+      document.getElementById("tdInput").classList.add("hidden");
       themedDialogCallback = () => onConfirm();
       togglePosModal("themedDialogModal");
     }
@@ -1258,7 +1338,7 @@
     };
 
     // ============================================================
-    // 3. ROLE-BASED 6-DIGIT PIN LOGIN & LIVE EMPLOYEE POPULATION
+    // 3. ROLE-BASED 6-DIGIT PIN LOGIN & LIVE EMPLOYEE LIST
     // ============================================================
     function updatePosPinDots() {
       document.querySelectorAll(".p-dot").forEach((d, i) => {
@@ -1331,7 +1411,7 @@
       currentPosUser = null;
       document.getElementById("posAppShell").classList.add("hidden");
       document.getElementById("posLoginScreen").classList.remove("hidden");
-      showPosToast("POS Terminal Locked");
+      showPosToast("Logged Out");
     }
 
     function getRealEmployeeNames() {
@@ -1354,11 +1434,7 @@
 
     function populateEmployeeDropdowns() {
       const staff = getRealEmployeeNames();
-      const waiterEl = document.getElementById("orderWaiterSelect");
       const tipEl = document.getElementById("orderTipStaffSelect");
-      if (waiterEl) {
-        waiterEl.innerHTML = staff.map(n => `<option value="${n}">${n}</option>`).join("");
-      }
       if (tipEl) {
         tipEl.innerHTML = `<option value="Pool / All Staff">Pool (All Staff)</option>` + staff.map(n => `<option value="${n}">${n}</option>`).join("");
       }
@@ -1367,11 +1443,12 @@
     function unlockPosUi() {
       document.getElementById("posLoginScreen").classList.add("hidden");
       document.getElementById("posAppShell").classList.remove("hidden");
-      document.getElementById("headerRestoName").textContent = `${posState.settings.restoName} POS`;
-      document.getElementById("posOperatorBadge").textContent = `${currentPosUser.role}: ${currentPosUser.name}`;
+      document.getElementById("headerRestoName").textContent = posState.settings.restoName;
+      document.getElementById("posOperatorBadge").textContent = `${currentPosUser.role} • ${currentPosUser.name}`;
 
       const priv = isPosPriv();
       document.getElementById("navMenuMgr").classList.toggle("hidden", !priv);
+      document.getElementById("mobNavMenuMgr").classList.toggle("hidden", !priv);
       document.getElementById("posSettingsBtn").classList.toggle("hidden", !priv);
       document.getElementById("sectionManageBtns").classList.toggle("hidden", !priv);
 
@@ -1382,9 +1459,8 @@
       populateEmployeeDropdowns();
       switchPosView("FLOOR");
 
-      // Prompt to open a POS session if none is active
       if (!posState.activeSession) {
-        setTimeout(() => openSessionRegisterModal(), 400);
+        setTimeout(() => openSessionRegisterModal(), 450);
       }
     }
 
@@ -1402,6 +1478,9 @@
         if (icon) icon.classList.remove("animate-spin");
         if (res.status === "success") {
           if (res.users && res.users.length > 0) cloudUsers = res.users;
+          if (typeof res.totalSessionsCount === "number" && res.totalSessionsCount + 1 > posState.sessionCounter) {
+            posState.sessionCounter = res.totalSessionsCount + 1;
+          }
           if (res.menu && res.menu.length > 0) {
             posState.menu = res.menu.map(m => ({
               code: String(m.Code), name: String(m.Name), category: String(m.Category),
@@ -1420,6 +1499,7 @@
           }
           if (res.erpSnapshot) erpSnapshot = res.erpSnapshot;
           populateEmployeeDropdowns();
+          updateSessionHeaderPill();
           saveState();
           renderFloor();
           renderDashboard();
@@ -1445,7 +1525,9 @@
       });
       document.querySelectorAll(".mob-nav-btn").forEach(b => {
         const active = b.dataset.v === view;
-        b.className = `mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl ${active ? "text-rose-600 bg-rose-50" : "text-slate-500"}`;
+        b.className = `mob-nav-btn flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all ${
+          active ? "bg-gradient-to-r from-amber-500 to-rose-600 text-white font-extrabold shadow" : "text-slate-600"
+        }`;
       });
 
       if (view === "FLOOR") renderFloor();
@@ -1464,28 +1546,38 @@
       if (pane === "MENU") {
         mPane.classList.remove("hidden");
         cPane.classList.add("hidden");
-        mBtn.className = "py-2.5 rounded-xl bg-rose-600 text-white transition";
-        cBtn.className = "py-2.5 rounded-xl bg-slate-100 text-slate-700 transition";
+        mBtn.className = "py-2 rounded-xl bg-rose-600 text-white transition";
+        cBtn.className = "py-2 rounded-xl bg-slate-100 text-slate-700 transition";
       } else {
         mPane.classList.add("hidden");
         cPane.classList.remove("hidden");
         cPane.classList.add("flex");
-        cBtn.className = "py-2.5 rounded-xl bg-rose-600 text-white transition";
-        mBtn.className = "py-2.5 rounded-xl bg-slate-100 text-slate-700 transition";
+        cBtn.className = "py-2 rounded-xl bg-rose-600 text-white transition";
+        mBtn.className = "py-2 rounded-xl bg-slate-100 text-slate-700 transition";
       }
     }
 
     // ============================================================
-    // 4. SESSION OPENING / CLOSING REGISTER + Z-REPORT & DAILY X-REPORT
+    // 4. AUTO-SYNCED SESSION OPENING / CLOSING REGISTER + Z-REPORT & X-REPORT
     // ============================================================
+    function getLiveOpsCashBoxBalance() {
+      if (erpSnapshot && Array.isArray(erpSnapshot.funds)) {
+        const cb = erpSnapshot.funds.find(f => String(f.FundName).includes("Cash Box"));
+        if (cb) return Number(cb.Balance) || 0;
+      }
+      return 0;
+    }
+
     function updateSessionHeaderPill() {
       const pill = document.getElementById("sessionStatusPill");
+      const txt = document.getElementById("sessionPillText");
       if (posState.activeSession) {
-        pill.textContent = `${posState.activeSession.sessionId} • Open`;
-        pill.className = "cursor-pointer text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+        const shortNum = posState.activeSession.sessionId.split("/")[1] || posState.sessionCounter;
+        txt.textContent = `Reg #${Number(shortNum)}`;
+        pill.className = "whitespace-nowrap px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs font-extrabold flex items-center gap-1";
       } else {
-        pill.textContent = "Register Closed";
-        pill.className = "cursor-pointer text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200";
+        txt.textContent = `Open Reg #${posState.sessionCounter}`;
+        pill.className = "whitespace-nowrap px-2.5 py-1.5 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 text-[10px] sm:text-xs font-extrabold flex items-center gap-1";
       }
     }
 
@@ -1511,7 +1603,7 @@
       return { sInvs, cashSales, digitalSales, manualIn, manualOut, expectedCash };
     }
 
-    function openSessionRegisterModal() {
+    async function openSessionRegisterModal() {
       const sess = posState.activeSession;
       if (!sess) {
         const nextId = `Restaurant/${String(posState.sessionCounter).padStart(5, "0")}`;
@@ -1519,6 +1611,11 @@
         document.getElementById("regSessionSub").textContent = `New Session: ${nextId}`;
         document.getElementById("regOpenBox").classList.remove("hidden");
         document.getElementById("regCloseBox").classList.add("hidden");
+
+        // Auto-sync live Operations Cash Box balance into Opening Cash input
+        const liveOpsCash = getLiveOpsCashBoxBalance();
+        document.getElementById("regLiveOpsCashHint").textContent = `₹${liveOpsCash.toLocaleString("en-IN")}`;
+        document.getElementById("regOpeningCashInput").value = liveOpsCash;
       } else {
         const st = getSessionStats(sess);
         document.getElementById("regModalHeading").textContent = "Closing Register";
@@ -1550,7 +1647,7 @@
       saveState();
       updateSessionHeaderPill();
       togglePosModal("sessionRegisterModal");
-      showPosToast(`Session ${sessionId} opened with ₹${openCash}`);
+      showPosToast(`Session ${sessionId} opened (₹${openCash.toLocaleString("en-IN")})`);
       syncToCloud({ action: "saveSession", ...posState.activeSession });
     }
 
@@ -1594,7 +1691,7 @@
       posState.activeSession = null;
       saveState();
       updateSessionHeaderPill();
-      showPosToast(`Session ${closedRecord.sessionId} closed & Z-Report generated!`);
+      showPosToast(`Session ${closedRecord.sessionId} closed!`);
     }
 
     function buildCategoryBreakdown(invs) {
@@ -1623,7 +1720,6 @@
       return { catMap, totalQty, totalSales, totalCgst, totalSgst, totalDisc, discCount };
     }
 
-    // 80mm Z-Report Matching Your Uploaded Z-Report Image
     function printSessionZReport(overrideSess = null) {
       const sess = overrideSess || posState.activeSession;
       if (!sess) return showPosToast("Open a session first.", true);
@@ -1679,7 +1775,6 @@
       togglePosModal("receiptModal");
     }
 
-    // Daily Sales Report X PDF Matching Your Uploaded Sales Details.pdf
     function printDailySalesReportX(period = "DAILY") {
       const now = new Date();
       const todayStr = now.toISOString().slice(0, 10);
@@ -1806,7 +1901,7 @@
       posState.tables.push({
         id: name, baseTable: name, label: name, section: sec, pax,
         status: "VACANT", orderNo: "", startedAt: null,
-        waiter: getRealEmployeeNames()[0], customerName: "", customerPhone: "", customerType: "Local",
+        waiter: currentPosUser.name, customerName: "", customerPhone: "", customerType: "Local",
         discountPct: 0, tipAmt: 0, tipStaff: "Pool / All Staff", items: []
       });
       saveState();
@@ -1862,15 +1957,16 @@
       const delSecBtn = document.getElementById("delSectionBtn");
       if (delSecBtn) delSecBtn.classList.toggle("hidden", floorSectionFilter === "ALL" || !isPosPriv());
 
-      let vacant = 0, running = 0, printed = 0;
+      let vacant = 0, running = 0;
       posState.tables.forEach(t => {
         if (t.status === "VACANT") vacant++;
-        else if (t.status === "RUNNING") running++;
-        else if (t.status === "PRINTED") printed++;
+        else running++;
       });
       document.getElementById("statVacant").textContent = `Vacant: ${vacant}`;
       document.getElementById("statRunning").textContent = `Running: ${running}`;
-      document.getElementById("statPrinted").textContent = `Printed: ${printed}`;
+      document.getElementById("statKotPrints").textContent = `KOTs: ${posState.kotPrintCount || 0}`;
+      document.getElementById("statProformaPrints").textContent = `Proforma: ${posState.proformaPrintCount || 0}`;
+      document.getElementById("statFinalBills").textContent = `Bills: ${posState.invoices.length}`;
 
       const chWrap = document.getElementById("activeChannelOrdersWrap");
       chWrap.classList.toggle("hidden", posState.channelOrders.length === 0);
@@ -1885,7 +1981,7 @@
             <p class="font-extrabold text-xs text-slate-900">${ch.label} • ${getElapsedMins(ch.startedAt)}m</p>
             <div class="flex justify-between items-center pt-1 border-t border-slate-100">
               <span class="text-sm font-extrabold text-slate-900 tabular-nums">₹${totals.grandTotal.toFixed(0)}</span>
-              <button type="button" onclick="event.stopPropagation(); requestCancelChannel('${ch.id}')" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-rose-50 text-rose-600">✕ Cancel</button>
+              <button type="button" onclick="event.stopPropagation(); requestCancelChannel('${ch.id}')" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-rose-50 text-rose-600">Cancel</button>
             </div>
           </div>
         `;
@@ -1903,7 +1999,7 @@
           badgeHtml = `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">${t.orderNo} • ${getElapsedMins(t.startedAt)}m</span>`;
         } else if (t.status === "PRINTED") {
           cardStyle = "bg-blue-50 border-blue-400 text-blue-950";
-          badgeHtml = `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-200 text-blue-900">${t.orderNo} • Printed</span>`;
+          badgeHtml = `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-200 text-blue-900">${t.orderNo} • Proforma</span>`;
         }
 
         return `
@@ -1966,7 +2062,7 @@
 
       posState.tables.splice(idx + 1, 0, {
         id: newId, baseTable, label: newId, section: template.section, pax: 2,
-        status: "VACANT", orderNo: "", startedAt: null, waiter: template.waiter,
+        status: "VACANT", orderNo: "", startedAt: null, waiter: currentPosUser.name,
         customerName: "", customerPhone: "", customerType: "Local",
         discountPct: 0, tipAmt: 0, tipStaff: "Pool / All Staff", items: []
       });
@@ -2044,7 +2140,6 @@
       });
     }
 
-    // Customer Mobile Auto-Detection (Local/Non-Local & Repeat Visitor)
     function onCustomerPhoneInput(val) {
       const order = getActiveOrderObj();
       if (!order) return;
@@ -2059,7 +2154,7 @@
           order.customerType = found.type || "Local";
           document.getElementById("orderCustName").value = found.name;
           document.getElementById("orderCustType").value = order.customerType;
-          badge.textContent = `★ Repeat Guest (${found.visits} Visits)`;
+          badge.textContent = `Repeat (${found.visits} Visits)`;
           badge.classList.remove("hidden");
         } else {
           badge.classList.add("hidden");
@@ -2103,6 +2198,7 @@
       }).join("");
     }
 
+    // Mobile Horizontal List View + Desktop 3-Column Card Grid + Bold FSSAI Badges
     function renderPosMenu() {
       const q = document.getElementById("posMenuSearch").value.toLowerCase().trim();
       const order = getActiveOrderObj();
@@ -2117,18 +2213,22 @@
       });
 
       document.getElementById("posMenuGrid").innerHTML = filtered.map(m => {
-        const dotColor = m.diet === "VEG" ? "border-emerald-600 text-emerald-600" : m.diet === "EGG" ? "border-amber-500 text-amber-500" : "border-rose-600 text-rose-600";
-        const qtyBadge = inCartMap[m.code] ? `<span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold">${inCartMap[m.code]}x</span>` : "";
+        const qtyBadge = inCartMap[m.code] ? `<span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold shrink-0">${inCartMap[m.code]}x</span>` : "";
         return `
           <button type="button" onclick="addMenuItemToCart('${m.code}')"
-            class="text-left p-2.5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-rose-400 hover:shadow-sm active:scale-95 transition flex flex-col justify-between min-h-[90px]">
-            <div class="flex justify-between items-start gap-1">
-              <span class="w-4 h-4 border ${dotColor} rounded-xs flex items-center justify-center text-[9px] font-bold shrink-0">●</span>
-              <span class="text-[10px] font-bold text-slate-400">#${m.code}</span>
-              ${qtyBadge}
+            class="w-full text-left p-2.5 sm:p-3 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-rose-400 hover:shadow-sm active:scale-[0.98] transition
+                   flex flex-row lg:flex-col items-center lg:items-stretch justify-between gap-2.5 lg:min-h-[96px]">
+            <div class="flex items-center gap-2 min-w-0 flex-1 lg:flex-initial">
+              ${getDietBadgeHtml(m.diet)}
+              <div class="min-w-0 flex-1">
+                <p class="font-extrabold text-xs text-slate-900 leading-snug break-words lg:line-clamp-2">${m.name}</p>
+                <span class="text-[10px] font-bold text-slate-400">#${m.code}</span>
+              </div>
             </div>
-            <p class="font-extrabold text-xs text-slate-900 line-clamp-2 my-1">${m.name}</p>
-            <p class="text-xs font-extrabold text-rose-600 tabular-nums">₹${m.price}</p>
+            <div class="flex items-center gap-1.5 shrink-0 lg:justify-between lg:pt-1">
+              ${qtyBadge}
+              <p class="text-xs sm:text-sm font-extrabold text-rose-600 tabular-nums">₹${m.price}</p>
+            </div>
           </button>
         `;
       }).join("") || `<p class="col-span-full text-center text-xs text-slate-400 py-8">No matching menu items.</p>`;
@@ -2143,8 +2243,10 @@
         order.status = "RUNNING";
         order.startedAt = new Date().toISOString();
         order.orderNo = `ORD-${posState.orderCounter++}`;
-        order.waiter = currentPosUser.name;
       }
+      // Stamp logged-in operator identity automatically
+      order.waiter = currentPosUser.name;
+
       const existing = order.items.find(i => String(i.code) === String(code) && !i.note);
       if (existing) existing.qty += 1;
       else {
@@ -2168,9 +2270,9 @@
 
       const activeQtySum = order.items.reduce((s, it) => s + Math.max(0, it.qty), 0);
       const mobCartBtn = document.getElementById("mobPaneCartBtn");
-      if (mobCartBtn) mobCartBtn.textContent = `2. Order & Bill (${activeQtySum})`;
+      if (mobCartBtn) mobCartBtn.textContent = `2. Cart & Bill (${activeQtySum})`;
 
-      document.getElementById("orderWaiterSelect").value = order.waiter || getRealEmployeeNames()[0];
+      document.getElementById("lockedBillerLabel").textContent = `${currentPosUser.name} (${currentPosUser.role})`;
       document.getElementById("orderCustName").value = order.customerName || "";
       document.getElementById("orderCustPhone").value = order.customerPhone || "";
       document.getElementById("orderCustType").value = order.customerType || "Local";
@@ -2185,9 +2287,9 @@
 
       document.getElementById("posCartItemsList").innerHTML = order.items.map((it, idx) => {
         const diff = it.qty - (it.sentQty || 0);
-        let statusTag = `<span class="text-[9px] font-bold text-emerald-600">✓ Sent</span>`;
+        let statusTag = `<span class="text-[9px] font-bold text-emerald-600">Sent</span>`;
         if (diff > 0) statusTag = `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">+${diff} Unsent</span>`;
-        else if (diff < 0) statusTag = `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">${diff} Cancel KOT</span>`;
+        else if (diff < 0) statusTag = `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">${diff} Cancel</span>`;
 
         return `
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-1.5 ${it.qty === 0 ? "opacity-60 border-rose-300 bg-rose-50/40" : ""}">
@@ -2198,7 +2300,7 @@
               </div>
               <div class="flex items-center gap-2 mt-0.5 text-[11px]">
                 <button type="button" onclick="openEditCartItemModal(${idx})" class="text-blue-600 font-extrabold underline decoration-dotted">₹${it.price}</button>
-                <button type="button" onclick="openEditCartItemModal(${idx})" class="text-slate-500 font-semibold">${it.note ? `📝 ${it.note}` : "+ Note"}</button>
+                <button type="button" onclick="openEditCartItemModal(${idx})" class="text-slate-500 font-semibold">${it.note ? it.note : "+ Note"}</button>
               </div>
             </div>
             <div class="flex items-center gap-1 shrink-0">
@@ -2251,7 +2353,7 @@
         order.items.splice(idx, 1);
       } else {
         item.qty = 0;
-        showPosToast(`Marked "${item.name}" for Cancel KOT — click Send KOT to notify kitchen`);
+        showPosToast(`Marked "${item.name}" for Cancel KOT — press F2 / Send KOT`);
       }
       if (order.items.length === 0 && activeOrderTarget.type === "TABLE") {
         order.status = "VACANT";
@@ -2266,7 +2368,7 @@
     function updateOrderMeta() {
       const order = getActiveOrderObj();
       if (!order) return;
-      order.waiter = document.getElementById("orderWaiterSelect").value;
+      order.waiter = currentPosUser.name;
       order.customerName = document.getElementById("orderCustName").value;
       order.customerType = document.getElementById("orderCustType").value;
       order.tipStaff = document.getElementById("orderTipStaffSelect").value;
@@ -2320,7 +2422,7 @@
     }
 
     // ============================================================
-    // 6. CONSOLIDATED KOT (Includes Spicy Kingdom Name & Guest Name)
+    // 6. CONSOLIDATED KOT + KOT PRINT COUNTER
     // ============================================================
     function sendConsolidatedKot(openPrintSlip = false) {
       const order = getActiveOrderObj();
@@ -2362,11 +2464,12 @@
         channel: channelName,
         tableRef: order.label,
         customerName: order.customerName || "",
-        waiter: order.waiter || currentPosUser.name,
+        waiter: currentPosUser.name,
         items: deltaItems
       };
 
       posState.kots.push(kotObj);
+      if (openPrintSlip) posState.kotPrintCount = (posState.kotPrintCount || 0) + 1;
       saveState();
       renderPosMenu();
       renderActiveCart();
@@ -2449,7 +2552,7 @@
               </div>
             </div>
             <div class="grid grid-cols-2 gap-1.5">
-              <button onclick="open80mmKotPreview(posState.kots[${kIdx}])" class="py-2 rounded-xl bg-slate-100 text-slate-800 text-[11px] font-extrabold">Print KOT</button>
+              <button onclick="posState.kotPrintCount=(posState.kotPrintCount||0)+1; saveState(); open80mmKotPreview(posState.kots[${kIdx}])" class="py-2 rounded-xl bg-slate-100 text-slate-800 text-[11px] font-extrabold">Print KOT</button>
               <button onclick="bumpKotTicket(${kIdx})" class="py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-extrabold">Mark Ready</button>
             </div>
           </div>
@@ -2466,16 +2569,19 @@
 
     function reprintLastKot() {
       if (posState.kots.length === 0) return showPosToast("No active KOT to print.", true);
+      posState.kotPrintCount = (posState.kotPrintCount || 0) + 1;
+      saveState();
       open80mmKotPreview(posState.kots[posState.kots.length - 1]);
     }
 
     // ============================================================
-    // 7. 80MM CUSTOMER RECEIPT (Logo-Only Rule, Guest Name/Mob & WhatsApp Feedback)
+    // 7. PROFORMA BILL PRINT, TAX INVOICE & QUICK CASH DENOMINATIONS
     // ============================================================
     function printBillAction() {
       const order = getActiveOrderObj();
       if (!order || order.items.length === 0) return showPosToast("Order cart is empty!", true);
       if (activeOrderTarget.type === "TABLE") order.status = "PRINTED";
+      posState.proformaPrintCount = (posState.proformaPrintCount || 0) + 1;
       saveState();
       renderActiveCart();
       render80mmCustomerReceipt({
@@ -2495,7 +2601,7 @@
     function render80mmCustomerReceipt(inv) {
       lastPrintedBillObj = inv;
       const s = posState.settings;
-      document.getElementById("receiptModalTitle").textContent = "80mm Customer Tax Invoice / Bill";
+      document.getElementById("receiptModalTitle").textContent = inv.invoiceNo === "PROFORMA" ? "80mm Proforma Bill Preview" : "80mm Customer Tax Invoice";
       document.getElementById("printerTargetHint").textContent = "Target: Counter 80mm USB Thermal Printer";
 
       const waBtn = document.getElementById("whatsappReceiptBtn");
@@ -2505,7 +2611,6 @@
       const printableTip = (!isCashPayment && Number(inv.tip) > 0) ? Number(inv.tip) : 0;
       const printableGrandTotal = Math.round((Number(inv.subtotal) + Number(inv.cgst) + Number(inv.sgst) + printableTip) * 100) / 100;
 
-      // Rule: If logo is uploaded, print Logo ONLY (do not print Restaurant Name text)
       const headerBrandHtml = s.logoDataUrl
         ? `<img src="${s.logoDataUrl}" style="max-height:54px; margin:0 auto 4px auto; display:block;" />`
         : `<div style="font-size:15px; font-weight:bold;">${s.restoName}</div>`;
@@ -2578,7 +2683,7 @@
       if (!lastPrintedBillObj || !lastPrintedBillObj.customerPhone) return;
       const phone = String(lastPrintedBillObj.customerPhone).replace(/\D/g, "");
       const formattedPhone = phone.length === 10 ? `91${phone}` : phone;
-      const msg = `Thank you for dining at *${posState.settings.restoName}*!\nBill: *${lastPrintedBillObj.invoiceNo}* (${lastPrintedBillObj.orderNo || ""})\nTotal: *₹${Number(lastPrintedBillObj.grandTotal).toFixed(2)}*\n\nWe would love your feedback! Reply to this WhatsApp message anytime.`;
+      const msg = `Thank you for dining at *${posState.settings.restoName}*!\nBill: *${lastPrintedBillObj.invoiceNo}* (${lastPrintedBillObj.orderNo || ""})\nTotal: *₹${Number(lastPrintedBillObj.grandTotal).toFixed(2)}*\n\nFeel free to share your feedback with us on WhatsApp!`;
       window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(msg)}`, "_blank");
     }
 
@@ -2591,6 +2696,18 @@
       document.getElementById("cashChangeDisplay").textContent = "₹0.00";
       selectSettleMode("Cash");
       togglePosModal("settleModal");
+    }
+
+    function setExactCashTendered() {
+      const totals = calcOrderTotals(getActiveOrderObj());
+      document.getElementById("cashTenderedInput").value = totals.grandTotal.toFixed(2);
+      calcChangeReturn();
+    }
+
+    function addCashDenom(amt) {
+      const cur = parseFloat(document.getElementById("cashTenderedInput").value) || 0;
+      document.getElementById("cashTenderedInput").value = cur + amt;
+      calcChangeReturn();
     }
 
     function selectSettleMode(mode) {
@@ -2652,7 +2769,6 @@
         cashier: currentPosUser.name
       };
 
-      // Update local CRM cache immediately
       if (cleanPhone.length >= 10) {
         posState.customers = posState.customers || [];
         const existingC = posState.customers.find(c => c.mobile === cleanPhone);
@@ -2709,7 +2825,7 @@
     }
 
     // ============================================================
-    // 8. CUSTOMER MARKETING CRM VIEW
+    // 8. CUSTOMER CRM, MENU MANAGER, REPORTS & CLEAN DASHBOARD
     // ============================================================
     function setCrmFilter(f) {
       crmFilter = f;
@@ -2736,7 +2852,7 @@
             <div class="flex items-center gap-1.5">
               <p class="font-extrabold text-sm text-slate-900">${c.name}</p>
               <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${c.type === "Local" ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"}">${c.type}</span>
-              ${Number(c.visits) >= 2 ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">★ ${c.visits}x</span>` : ""}
+              ${Number(c.visits) >= 2 ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">${c.visits}x</span>` : ""}
             </div>
             <p class="text-xs font-bold text-slate-600 mt-0.5">${c.mobile} • Spent ₹${Math.round(Number(c.spent)).toLocaleString("en-IN")}</p>
           </div>
@@ -2759,9 +2875,6 @@
       showPosToast("Customer marketing list exported!");
     }
 
-    // ============================================================
-    // 9. MENU MANAGER, MANUAL CASH, TIPS SPLIT & COLORFUL DASHBOARD
-    // ============================================================
     function setMgrDietFilter(d) {
       mgrDietFilter = d;
       document.querySelectorAll(".mgr-diet-btn").forEach(b => {
@@ -2791,9 +2904,12 @@
         const realIdx = posState.menu.findIndex(x => x.code === m.code && x.name === m.name);
         return `
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <p class="text-xs font-extrabold text-slate-900 truncate">#${m.code} • ${m.name}</p>
-              <p class="text-[11px] text-slate-500">${m.category} • ${m.diet} • <strong class="text-rose-600">₹${m.price}</strong></p>
+            <div class="flex items-center gap-2.5 min-w-0">
+              ${getDietBadgeHtml(m.diet)}
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-slate-900 break-words">#${m.code} • ${m.name}</p>
+                <p class="text-[11px] text-slate-500">${m.category} • <strong class="text-rose-600">₹${m.price}</strong></p>
+              </div>
             </div>
             <div class="flex gap-1.5 shrink-0 text-[11px] font-extrabold">
               <button onclick="openMenuEditorModal(${realIdx})" class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700">Edit</button>
@@ -3038,7 +3154,7 @@
     }
 
     // ============================================================
-    // 10. SHIFT/MERGE TABLES, SETTINGS & COLORFUL DASHBOARD RENDER
+    // 10. SHIFT/MERGE TABLES, SETTINGS & CLEAN DASHBOARD RENDER
     // ============================================================
     function openShiftTableModal() {
       const cur = getActiveOrderObj();
@@ -3161,7 +3277,7 @@
         erpBridgeUrl: document.getElementById("setErpBridgeUrl").value.trim()
       });
       saveState();
-      document.getElementById("headerRestoName").textContent = `${posState.settings.restoName} POS`;
+      document.getElementById("headerRestoName").textContent = posState.settings.restoName;
       if (getPosApiUrl()) syncToCloud({ action: "saveSettings", settings: posState.settings });
       togglePosModal("settingsModal");
       renderActiveCart();
@@ -3178,7 +3294,6 @@
       document.getElementById("kpiTodayOrders").textContent = todayInvs.length;
       document.getElementById("kpiTotalTips").textContent = `₹${Math.round(totalTips).toLocaleString("en-IN")}`;
 
-      // Card 4: Worker Tips
       let tipsByWorker = {};
       posState.invoices.forEach(i => {
         const t = Number(i.tip) || 0;
@@ -3193,7 +3308,6 @@
         </div>
       `).join("") || `<p class="text-slate-400">No worker tips recorded yet.</p>`;
 
-      // Card 3: Dedicated Ops Issued Stock Card
       if (erpSnapshot && erpSnapshot.funds) {
         const cashBox = erpSnapshot.funds.find(f => f.FundName.includes("Cash Box"));
         document.getElementById("kpiOpsCashBox").textContent = cashBox ? `₹${Math.round(Number(cashBox.Balance)).toLocaleString("en-IN")}` : "₹0";
@@ -3210,14 +3324,13 @@
           const pct = Math.round((qty / maxIssued) * 100);
           return `
             <div>
-              <div class="flex justify-between font-bold mb-1"><span>${item}</span><span class="text-cyan-700">${qty} issued</span></div>
-              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style="width:${pct}%"></div></div>
+              <div class="flex justify-between font-bold mb-1"><span>${item}</span><span class="text-slate-700">${qty} issued</span></div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-teal-600" style="width:${pct}%"></div></div>
             </div>
           `;
         }).join("") || `<p class="text-slate-400">No kitchen stock issued in Operations DB yet.</p>`;
       }
 
-      // Card 1 & 2: Colorful Progress Bars for Channels & Top Revenue Dishes
       let chTotals = {}, payTotals = {}, dishRev = {};
       todayInvs.forEach(i => {
         chTotals[i.channel] = (chTotals[i.channel] || 0) + (Number(i.grandTotal) || 0);
@@ -3227,13 +3340,12 @@
         });
       });
 
-      const barColors = ["from-rose-500 to-orange-500", "from-indigo-500 to-blue-500", "from-emerald-500 to-teal-500", "from-amber-500 to-yellow-500"];
-      document.getElementById("channelBreakdownList").innerHTML = Object.entries(chTotals).map(([ch, amt], idx) => {
+      document.getElementById("channelBreakdownList").innerHTML = Object.entries(chTotals).map(([ch, amt]) => {
         const pct = totalSales > 0 ? Math.round((amt / totalSales) * 100) : 0;
         return `
           <div>
             <div class="flex justify-between font-bold mb-1"><span>${ch}</span><span>₹${Math.round(amt)} (${pct}%)</span></div>
-            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r ${barColors[idx % barColors.length]}" style="width:${pct}%"></div></div>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-600" style="width:${pct}%"></div></div>
           </div>
         `;
       }).join("") || `<p class="text-slate-400">No settled sales today.</p>`;
@@ -3249,7 +3361,7 @@
         return `
           <div>
             <div class="flex justify-between font-bold mb-1"><span class="truncate pr-2">${idx + 1}. ${dish}</span><span class="text-emerald-700 shrink-0">₹${Math.round(rev).toLocaleString("en-IN")}</span></div>
-            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500" style="width:${pct}%"></div></div>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-600" style="width:${pct}%"></div></div>
           </div>
         `;
       }).join("") || `<p class="text-slate-400">Settle orders to see top dishes.</p>`;
@@ -3280,6 +3392,8 @@
         posState.manualCash = [];
         posState.customers = [];
         posState.activeSession = null;
+        posState.kotPrintCount = 0;
+        posState.proformaPrintCount = 0;
         saveState();
         renderDashboard();
         renderFloor();
